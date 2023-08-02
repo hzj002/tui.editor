@@ -6,13 +6,15 @@ import { getCustomAttrs, getDefaultCustomAttrs } from '@/wysiwyg/helper/node';
 
 import { EditorCommand } from '@t/spec';
 
+export const strikeMarkTags = ['s', 'del']
+
 export class Strike extends Mark {
   get name() {
     return 'strike';
   }
 
   get schema() {
-    const parseDOM = ['s', 'del'].map((tag) => {
+    const parseDOM = strikeMarkTags.map((tag) => {
       return {
         tag,
         getAttrs(dom: Node | string) {

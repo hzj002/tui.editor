@@ -49,6 +49,22 @@ function createDelim(node: ProsemirrorNode) {
 }
 
 export const toMarkdownRenderers: ToMdConvertorMap = {
+
+  // markdown文件中的html表格传入此插件时，如果这里不返回一个空的delim，而是不处理的话，toMdConvertors 会将html <table>标签转换保留下来，而thead、cell会被下面的tableHead、tableHeadCell和tableBodyCell处理转换为markdown字符，导致错乱而无法渲染
+  table(nodeInfo, context) {
+    return { delim: '' }
+  },
+
+  // 同上，tableRow会被保留为<tr>
+  tableRow(nodeInfo, context) {
+    return { delim: '' }
+  },
+
+  // 同上，tableBody会被保留为<tbody>
+  tableBody(nodeInfo, context) {
+    return { delim: '' }
+  },
+
   tableHead(nodeInfo) {
     const row = (nodeInfo.node as ProsemirrorNode).firstChild;
 

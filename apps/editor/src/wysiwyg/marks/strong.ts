@@ -6,13 +6,15 @@ import { getCustomAttrs, getDefaultCustomAttrs } from '@/wysiwyg/helper/node';
 
 import { EditorCommand } from '@t/spec';
 
+export const strongMarkTags = ['b', 'strong']
+
 export class Strong extends Mark {
   get name() {
     return 'strong';
   }
 
   get schema() {
-    const parseDOM = ['b', 'strong'].map((tag) => {
+    const parseDOM = strongMarkTags.map((tag) => {
       return {
         tag,
         getAttrs(dom: Node | string) {

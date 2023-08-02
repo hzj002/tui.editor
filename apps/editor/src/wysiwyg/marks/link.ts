@@ -10,6 +10,8 @@ import { getCustomAttrs, getDefaultCustomAttrs } from '@/wysiwyg/helper/node';
 import { EditorCommand } from '@t/spec';
 import { LinkAttributes } from '@t/editor';
 
+export const linkMarkTags = ['a']
+
 export class Link extends Mark {
   private linkAttributes: LinkAttributes;
 
