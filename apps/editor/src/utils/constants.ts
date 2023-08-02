@@ -15,7 +15,11 @@ export const CLOSE_TAG = `</(${TAG_NAME})\\s*[>]`;
 
 export const HTML_TAG = `(?:${OPEN_TAG}|${CLOSE_TAG})`;
 
-export const reHTMLTag = new RegExp(`^${HTML_TAG}`, 'i');
+/**
+ * 匹配html标签，\\s*
+ * 允许标签前有空格，避免因为空格导致的匹配失败
+ */
+export const reHTMLTag = new RegExp(`^\\s*${HTML_TAG}`, 'i')
 export const reBR = /<br\s*\/*>/i;
 export const reHTMLComment = /<! ---->|<!--(?:-?[^>-])(?:-?[^-])*-->/;
 
