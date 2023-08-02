@@ -29,3 +29,43 @@ const content3 = [
   '| table5 | table6 | table7 | table8 |',
   '| table9 | table10 | table11 | table22 |',
 ].join('\n');
+
+
+const content4 = `
+<table style="line-height: 30px;">
+<thead>
+  <tr>
+    <td style="text-align: center;" colspan="6"><b>各厂商CDN流量计费对比</b></td>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td rowspan="2">区域 | 厂商</td>
+    <td rowspan="2">腾讯CDN流量单价(元/G)</td>
+    <td rowspan="2">网宿CDN流量单价(元/G)</td>
+    <td colspan="3">AWS计费单价</td>
+  </tr>
+  <tr>
+    <td>CloudFront流量单价(元/G)</td>
+    <td>区域数据传至源服务器(元/G)</td>
+    <td>HTTPS请求（元/万次）</td>
+  </tr>
+  <tr>
+    <td>北美</td>
+    <td>0.25</td>
+    <td>0.16</td>
+    <td>0.61</td>
+    <td>0.15</td>
+    <td>0.07</td>
+  </tr>
+  <tr>
+    <td>欧洲</td>
+    <td>0.25</td>
+    <td>0.16</td>
+    <td>0.61</td>
+    <td>0.15</td>
+    <td>0.08</td>
+  </tr>
+</tbody>
+</table>
+`

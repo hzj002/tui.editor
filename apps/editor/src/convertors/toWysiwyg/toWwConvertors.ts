@@ -329,7 +329,7 @@ const toWwConvertors: ToWwConvertorMap = {
   },
 
   htmlBlock(state, node) {
-    const html = node.literal!;
+    let html = node.literal!;
     const container = document.createElement('div');
     const isHTMLComment = reHTMLComment.test(html);
 
@@ -343,6 +343,15 @@ const toWwConvertors: ToWwConvertorMap = {
 
       const typeName = (openTagName || closeTagName).toLowerCase();
       const nodeType = state.schema.nodes[typeName];
+
+      if (typeName === 'table') {
+        //如果表格中代码中没有thead，将第一行tr作为thead并插入thead元素。防止toWwConvertor 中tableHead匹配不到thead导致渲染时被注入markdown的表头字符，导致无法正常渲染表格
+        if (!/<thead[\s\S]*?>/g.test(html)) {
+          const thead = html.match(/<tr>([\s\S]*?)<\/tr>/)![0]
+          html = html.replace(thead, `<thead>${thead}</thead>`)
+        }
+      }
+
       const sanitizedHTML = sanitizeHTML(html);
 
       // for user defined html schema
