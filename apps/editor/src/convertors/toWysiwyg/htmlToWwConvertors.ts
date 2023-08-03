@@ -8,10 +8,10 @@ import {
 } from '@t/convertor';
 import { includes } from '@/utils/common';
 import { reHTMLTag } from '@/utils/constants';
-import { emphMarkTags } from '@/wysiwyg/marks/emph'
-import { strongMarkTags } from '@/wysiwyg/marks/strong'
-import { linkMarkTags } from '@/wysiwyg/marks/link'
-import { strikeMarkTags } from '@/wysiwyg/marks/strike'
+import { emphMarkTags } from '@/wysiwyg/marks/emph';
+import { strongMarkTags } from '@/wysiwyg/marks/strong';
+import { linkMarkTags } from '@/wysiwyg/marks/link';
+import { strikeMarkTags } from '@/wysiwyg/marks/strike';
 
 export function getTextWithoutTrailingNewline(text: string) {
   return text[text.length - 1] === '\n' ? text.slice(0, text.length - 1) : text;
@@ -27,10 +27,12 @@ export function isCustomHTMLInlineNode({ schema }: ToWwConvertorState, node: MdN
 
     // 将emphasis、strong、link、code等内联节点的标签匹配typeName，防止以上节点未被匹配为内联节点
     // 从而导致tableCell方法没有给内容添加paragraph节点，某些情况可能导致ToWwConvertorState.stack会被错误出栈，导致文档解析错误
-    const markTags = [...emphMarkTags, ...strongMarkTags, ...linkMarkTags, ...strikeMarkTags]
+    const markTags = [...emphMarkTags, ...strongMarkTags, ...linkMarkTags, ...strikeMarkTags];
 
-    return node.type === 'htmlInline' && !!(schema.marks[typeName] || schema.nodes[typeName]) ||
-      includes(markTags, typeName);
+    return (
+      (node.type === 'htmlInline' && !!(schema.marks[typeName] || schema.nodes[typeName])) ||
+      includes(markTags, typeName)
+    );
   }
   return false;
 }
