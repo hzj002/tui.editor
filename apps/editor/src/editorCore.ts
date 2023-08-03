@@ -472,7 +472,7 @@ class ToastUIEditorCore {
   async setMarkdown(
     markdown = '',
     cursorToEnd = true,
-    { renderByPart = true, renderByPartLineMinStep = 1000 } = {}
+    { renderByPart = true, renderByPartLineMinStep = 2000 } = {}
   ) {
     /**
      * 将markdown文档分块，按照minStep行数分块，为了不切割markdown文档中的块级元素，如表格、代码块等。会在minStep之后的下一个标题处分块。
@@ -482,7 +482,7 @@ class ToastUIEditorCore {
     const splitLinesByMinStep = (markdownStr: string, minStep: number) => {
       const lines = markdownStr.split(reLineEnding);
 
-      const isHeading = (line: string) => /^#+\s/.test(line);
+      const isHeading = (line: string) => /^[#=-]+\s/.test(line);
 
       // 将数组每[minStep]个元素组合成一个数组
       const parts = [];
