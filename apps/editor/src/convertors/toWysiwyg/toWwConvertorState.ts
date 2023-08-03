@@ -31,21 +31,31 @@ export default class ToWwConvertorState {
     this.marks = Mark.none as Mark[];
   }
 
+  /**
+   * this.stack的栈顶
+   */
   top() {
     return last(this.stack);
   }
 
+  /**
+   * 将node push到stack的栈顶的content数组中
+   */
   push(node: Node) {
     if (this.stack.length) {
       this.top().content.push(node);
     }
   }
 
+  /**
+   * 将text转换为text Node合并到this.stack栈顶元素的content的最后一个node中、或者添加到最后一个node之后
+   */
   addText(text: string) {
     if (text) {
       const nodes = this.top().content;
       const lastNode = last(nodes);
       const node = this.schema.text(text, this.marks);
+      // 如果lastNode 和 node都是text Node，并且marks相同，则将node的text合并到lastNode中
       const merged = lastNode && mergeMarkText(lastNode, node);
 
       if (merged) {
@@ -78,6 +88,7 @@ export default class ToWwConvertorState {
 
   openNode(type: NodeType, attrs: Attrs) {
     this.stack.push({ type, attrs, content: [] });
+    // console.log('-----> open node',this.stack.map((item) => item.type.name))
   }
 
   closeNode() {
@@ -86,6 +97,7 @@ export default class ToWwConvertorState {
     }
 
     const { type, attrs, content } = this.stack.pop() as StackItem;
+    // console.log('<------ close node', this.stack.map((item) => item.type.name))
 
     return this.addNode(type, attrs, content);
   }
@@ -150,7 +162,7 @@ export default class ToWwConvertorState {
               0
             ) + 1;
 
-          infoForPosSync.setMappedPos(pos);
+          infoForPosSync?.setMappedPos(pos);
         }
       }
 
