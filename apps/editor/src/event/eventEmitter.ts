@@ -38,6 +38,11 @@ const eventTypeList: EventTypes[] = [
   'blur',
   'keydown',
   'keyup',
+  // fork之后拓展的事件
+  'setMarkdown',
+  'setHtml',
+  'setBR',
+  'askChangeMode',
 ];
 
 /**

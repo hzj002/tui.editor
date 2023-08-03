@@ -29,6 +29,7 @@ class ToastUIEditor extends EditorCore {
           previewStyle=${this.options.previewStyle}
           editorType=${this.options.initialEditType}
           theme=${this.options.theme}
+          codeTheme=${this.options.codeTheme || this.options.theme}
         />
       ` as VNode
     );

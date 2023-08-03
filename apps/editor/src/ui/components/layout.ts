@@ -7,7 +7,6 @@ import { Component } from '../vdom/component';
 import { Switch } from './switch';
 import { Toolbar } from './toolbar/toolbar';
 import { ContextMenu } from './contextMenu';
-
 interface Props {
   eventEmitter: Emitter;
   hideModeSwitch: boolean;
@@ -20,6 +19,7 @@ interface Props {
   editorType: EditorType;
   toolbarItems: ToolbarItem[];
   theme: string;
+  codeTheme: string;
 }
 
 interface State {
@@ -60,18 +60,22 @@ export class Layout extends Component<Props, State> {
   }
 
   render() {
-    const { eventEmitter, hideModeSwitch, toolbarItems, theme } = this.props;
+    const { eventEmitter, hideModeSwitch, toolbarItems, theme, codeTheme } = this.props;
+
     const { hide, previewStyle, editorType } = this.state;
     const displayClassName = hide ? ' hidden' : '';
     const editorTypeClassName = cls(editorType === 'markdown' ? 'md-mode' : 'ww-mode');
     const previewClassName = `${cls('md')}-${previewStyle}-style`;
     const themeClassName = cls([theme !== 'light', `${theme} `]);
+    const codeThemeClassName = cls([codeTheme !== 'light', `code-${codeTheme} `]);
 
     return html`
       <div
-        class="${themeClassName}${cls('defaultUI')}${displayClassName}"
+        class="${themeClassName}${codeThemeClassName}${cls('defaultUI')}${displayClassName}"
         ref=${(el: HTMLElement) => (this.refs.el = el)}
       >
+        ${!hideModeSwitch &&
+        html` <${Switch} eventEmitter=${eventEmitter} editorType=${editorType} /> `}
         <${Toolbar}
           ref=${(toolbar: Toolbar) => (this.toolbar = toolbar)}
           eventEmitter=${eventEmitter}
@@ -96,8 +100,6 @@ export class Layout extends Component<Props, State> {
             />
           </div>
         </div>
-        ${!hideModeSwitch &&
-        html`<${Switch} eventEmitter=${eventEmitter} editorType=${editorType} />`}
         <${ContextMenu} eventEmitter=${eventEmitter} />
       </div>
     `;

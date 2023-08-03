@@ -46,6 +46,8 @@ import { buildQuery } from './queries/queryManager';
 import { getEditorToMdPos, getMdToEditorPos } from './markdown/helper/pos';
 import { Pos } from '@t/toastmark';
 
+const reLineEnding = /\r\n|\n|\r/;
+
 /**
  * ToastUIEditorCore
  * @param {Object} options Option object
@@ -116,6 +118,8 @@ class ToastUIEditorCore {
 
   private placeholder?: string;
 
+  private placeholderHtml?: string[];
+
   eventEmitter: Emitter;
 
   protected options: Required<EditorOptions>;
@@ -154,6 +158,7 @@ class ToastUIEditorCore {
         frontMatter: false,
         widgetRules: [],
         theme: 'light',
+        codeTheme: 'light',
         autofocus: true,
       },
       options
@@ -261,6 +266,10 @@ class ToastUIEditorCore {
       this.setPlaceholder(this.options.placeholder);
     }
 
+    if (this.options.placeholderHtml) {
+      this.setPlaceholderHtml(this.options.placeholderHtml);
+    }
+
     if (!this.options.initialValue) {
       this.setHTML(this.initialHTML, false);
     }
@@ -305,6 +314,15 @@ class ToastUIEditorCore {
 
         this.setMinHeight(minHeight);
       }
+    });
+    this.on('setMarkdown', this.setMarkdown.bind(this));
+    this.on('setHtml', this.setHTML.bind(this));
+    this.on('setBR', (e) => {
+      this.moveCursorToEnd();
+      if (e) return;
+      const [from, to] = this.getSelection();
+
+      this.replaceSelection('\n', from, to);
     });
     addDefaultImageBlobHook(this.eventEmitter);
   }
@@ -451,15 +469,101 @@ class ToastUIEditorCore {
    * @param {string} markdown - markdown syntax text.
    * @param {boolean} [cursorToEnd=true] - move cursor to contents end
    */
-  setMarkdown(markdown = '', cursorToEnd = true) {
-    this.mdEditor.setMarkdown(markdown, cursorToEnd);
+  async setMarkdown(
+    markdown = '',
+    cursorToEnd = true,
+    { renderByPart = true, renderByPartLineMinStep = 1000 } = {}
+  ) {
+    /**
+     * 将markdown文档分块，按照minStep行数分块，为了不切割markdown文档中的块级元素，如表格、代码块等。会在minStep之后的下一个标题处分块。
+     * @param markdownStr
+     * @param minStep
+     */
+    const splitLinesByMinStep = (markdownStr: string, minStep: number) => {
+      const lines = markdownStr.split(reLineEnding);
 
-    if (this.isWysiwygMode()) {
-      const mdNode = this.toastMark.getRootNode();
-      const wwNode = this.convertor.toWysiwygModel(mdNode);
+      const isHeading = (line: string) => /^#+\s/.test(line);
 
-      this.wwEditor.setModel(wwNode!, cursorToEnd);
-    }
+      // 将数组每[minStep]个元素组合成一个数组
+      const parts = [];
+      let lastIndex = 0;
+      let hasJumped = false;
+
+      for (let i = 0; i <= lines.length; ) {
+        if (!hasJumped) {
+          i += minStep;
+          hasJumped = true;
+        }
+
+        // 长度超出时，最后一部分不足[minStep]个元素，直接将剩余元素组合成一个数组
+        if (i >= lines.length) {
+          parts.push(lines.slice(lastIndex, lines.length));
+          break;
+        }
+
+        // 遇到标题时，在标题处分块
+        if (isHeading(lines[i])) {
+          parts.push(lines.slice(lastIndex, i));
+          lastIndex = i;
+          hasJumped = false;
+        }
+
+        i += 1;
+      }
+
+      console.group('markdown info');
+      console.log('markdown content size:', `${(markdownStr.length / 1024).toFixed(2)}KB`);
+      console.log('lines count:', lines.length);
+      console.log(
+        'lines pre part:',
+        parts.map((part) => part.length)
+      );
+      console.log('parts count:', parts.length);
+      console.groupEnd();
+
+      return parts.map((part) => part.join('\n'));
+    };
+
+    const parts = renderByPart
+      ? splitLinesByMinStep(markdown, renderByPartLineMinStep)
+      : [markdown];
+
+    /**
+     * 添加分块到编辑器中
+     * 原理是将md文档内容传入mdEditor中转换为mdNode，再将mdNode转换为wwNode，最后将wwNode通过insert方式将内容添加到wwEditor末尾。
+     */
+    const setMdPart = (mdPart: string, partIndex: number, _cursorToEnd = false) => {
+      // q: mdEditor.setMarkdown 为什么没有像wwEditor.setModel一样设置第三个参数isAppend。用来表示是否将内容增量添加到编辑器中。
+      // a: 这样做的原因是如果设置了isAppend，this.toastMark.getRootNode() 会将所有内容取出，会将所有内容再通过wwEditor.setModel到页面中，导致页面上显示文档内容重复。
+      this.mdEditor.setMarkdown(mdPart, _cursorToEnd);
+      if (this.isWysiwygMode()) {
+        const mdNode = this.toastMark.getRootNode();
+        const wwNode = this.convertor.toWysiwygModel(mdNode);
+
+        this.wwEditor.setModel(wwNode!, _cursorToEnd, partIndex !== 0);
+      }
+    };
+
+    // 分块渲染到页面中，每次渲染一个分块，然后等待一段时间，再渲染下一个分块。以减轻页面阻塞
+    const taskQueue = parts.reduce(
+      (prev, part, index) =>
+        prev.then(
+          () =>
+            new Promise((resolve) => {
+              console.time(`set markdown part ${index + 1}`);
+              setMdPart(part, index, index === parts.length - 1 ? cursorToEnd : false);
+              console.timeEnd(`set markdown part ${index + 1}`);
+              setTimeout(resolve, 1000 / 30);
+            })
+        ),
+      Promise.resolve()
+    );
+
+    console.group('markdown convertion time');
+    console.time('convert markdown to editor nodes');
+    await taskQueue;
+    console.timeEnd('convert markdown to editor nodes');
+    console.groupEnd();
   }
 
   /**
@@ -484,6 +588,7 @@ class ToastUIEditorCore {
   /**
    * Get content to markdown
    * @returns {string} markdown text
+   * @notice 比较耗时，对于大文件，该方法可能会阻塞主线程，导致页面卡顿
    */
   getMarkdown() {
     if (this.isMarkdownMode()) {
@@ -506,7 +611,7 @@ class ToastUIEditorCore {
         this.wwEditor.setModel(wwNode!);
       }
     });
-    const html = removeProseMirrorHackNodes(this.wwEditor.view.dom.innerHTML);
+    const html = removeProseMirrorHackNodes(this.wwEditor.view.dom.outerHTML);
 
     if (this.placeholder) {
       const rePlaceholder = new RegExp(
@@ -515,6 +620,16 @@ class ToastUIEditorCore {
       );
 
       return html.replace(rePlaceholder, '');
+    }
+    if (this.placeholderHtml) {
+      let _html = html;
+
+      this.placeholderHtml.forEach((str) => {
+        const rePlaceholder = new RegExp(`<span class="placeholder[^>]+>${str}</span>`, 'i');
+
+        _html = _html.replace(rePlaceholder, '');
+      });
+      return _html;
     }
 
     return html;
@@ -811,6 +926,11 @@ class ToastUIEditorCore {
     this.placeholder = placeholder;
     this.mdEditor.setPlaceholder(placeholder);
     this.wwEditor.setPlaceholder(placeholder);
+  }
+
+  setPlaceholderHtml(html: string[]) {
+    this.placeholderHtml = html;
+    this.wwEditor.setPlaceholderHtml(html);
   }
 
   /**

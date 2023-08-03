@@ -40,7 +40,7 @@ export default abstract class EditorBase implements Base {
 
   specs!: SpecManager;
 
-  placeholder: { text: string };
+  placeholder: Partial<{ text: string; innerHtml: string[] }>;
 
   extraPlugins!: PluginProp[];
 
@@ -51,7 +51,7 @@ export default abstract class EditorBase implements Base {
     this.el.className = 'toastui-editor';
 
     this.eventEmitter = eventEmitter;
-    this.placeholder = { text: '' };
+    this.placeholder = {};
   }
 
   abstract createSpecs(): SpecManager;
@@ -90,7 +90,7 @@ export default abstract class EditorBase implements Base {
         ...baseKeymap,
       }),
       history(),
-      placeholder(this.placeholder),
+      placeholder(this.placeholder, this.eventEmitter),
       addWidget(this.eventEmitter),
       dropImage(this.context),
     ];
@@ -215,6 +215,11 @@ export default abstract class EditorBase implements Base {
 
   setPlaceholder(text: string) {
     this.placeholder.text = text;
+    this.view.dispatch(this.view.state.tr.scrollIntoView());
+  }
+
+  setPlaceholderHtml(html: string[]) {
+    this.placeholder.innerHtml = html;
     this.view.dispatch(this.view.state.tr.scrollIntoView());
   }
 

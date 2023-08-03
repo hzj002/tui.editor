@@ -259,10 +259,17 @@ export default class WysiwygEditor extends EditorBase {
     return doc.textBetween(from, to, '\n');
   }
 
-  setModel(newDoc: ProsemirrorNode | [], cursorToEnd = false) {
+  /**
+   *
+   * @param newDoc
+   * @param cursorToEnd
+   * @param isAppend 是否将内容添加到当前内容的末尾，用于分块渲染加载性能优化
+   */
+  setModel(newDoc: ProsemirrorNode | [], cursorToEnd = false, isAppend = false) {
     const { tr, doc } = this.view.state;
 
-    this.view.dispatch(tr.replaceWith(0, doc.content.size, newDoc));
+    if (isAppend) this.view.dispatch(tr.insert(doc.content.size, newDoc));
+    else this.view.dispatch(tr.replaceWith(0, doc.content.size, newDoc));
 
     if (cursorToEnd) {
       this.moveCursorToEnd(true);

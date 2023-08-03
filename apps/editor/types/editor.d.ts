@@ -40,6 +40,8 @@ export interface EventMap {
   keyup?: (editorType: EditorType, ev: KeyboardEvent) => void;
   beforePreviewRender?: (html: string) => string;
   beforeConvertWysiwygToMarkdown?: (markdownText: string) => string;
+  changeMode?: (editorType: EditorType) => void;
+  askChangeMode?: (editorType: EditorType) => void;
 }
 
 type HookCallback = (url: string, text?: string) => void;
@@ -48,9 +50,7 @@ export type HookMap = {
   addImageBlobHook?: (blob: Blob | File, callback: HookCallback) => void;
 };
 
-export type AutolinkParser = (
-  content: string
-) => {
+export type AutolinkParser = (content: string) => {
   url: string;
   text: string;
   range: [number, number];
@@ -88,6 +88,10 @@ export interface ViewerOptions {
   frontMatter?: boolean;
   usageStatistics?: boolean;
   theme?: string;
+  /**
+   * @description 代码块的主题，如果不设置，默认跟随theme
+   */
+  codeTheme?: string;
 }
 
 export class Viewer {
@@ -176,6 +180,7 @@ export interface EditorOptions {
   plugins?: EditorPlugin[];
   extendedAutolinks?: ExtendedAutolinks;
   placeholder?: string;
+  placeholderHtml?: string[];
   linkAttributes?: LinkAttributes;
   customHTMLRenderer?: CustomHTMLRenderer;
   customMarkdownRenderer?: ToMdConvertorMap;
@@ -187,6 +192,10 @@ export interface EditorOptions {
   theme?: string;
   autofocus?: boolean;
   viewer?: boolean;
+  /**
+   * @description 代码块的主题，如果不设置，默认跟随theme
+   */
+  codeTheme?: 'light' | 'dark';
 }
 
 interface Slots {
@@ -321,7 +330,7 @@ export interface Base {
 
   specs: SpecManager;
 
-  placeholder: { text: string };
+  placeholder: Partial<{ text: string; innerHtml: string[] }>;
 
   createSpecs(): SpecManager;
 
@@ -352,6 +361,8 @@ export interface Base {
   getScrollTop(): number;
 
   setPlaceholder(text: string): void;
+
+  setPlaceholderHtml(html: string[]): void;
 
   setHeight(height: number): void;
 

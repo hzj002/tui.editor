@@ -53,4 +53,9 @@ export type EventTypes =
   | 'focus'
   | 'blur'
   | 'keydown'
-  | 'keyup';
+  | 'keyup'
+  // fork之后拓展的事件
+  | 'setMarkdown'
+  | 'setHtml'
+  | 'setBR'
+  | 'askChangeMode';

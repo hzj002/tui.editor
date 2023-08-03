@@ -66,6 +66,7 @@ class ToastUIEditorViewer {
         frontMatter: false,
         usageStatistics: true,
         theme: 'light',
+        codeTheme: 'light',
       },
       options
     );
@@ -104,12 +105,17 @@ class ToastUIEditorViewer {
       });
     }
 
-    const { el, initialValue, theme } = this.options;
+    const { el, initialValue, theme, codeTheme } = this.options;
     const existingHTML = el.innerHTML;
 
     if (theme !== 'light') {
       el.classList.add(cls(theme));
     }
+
+    if (codeTheme !== 'light') {
+      el.classList.add(cls(`code-${codeTheme}`));
+    }
+
     el.innerHTML = '';
 
     this.toastMark = new ToastMark('', {
