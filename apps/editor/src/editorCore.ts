@@ -315,7 +315,6 @@ class ToastUIEditorCore {
         this.setMinHeight(minHeight);
       }
     });
-    this.on('setMarkdown', this.setMarkdown.bind(this));
     this.on('setHtml', this.setHTML.bind(this));
     this.on('setBR', (e) => {
       this.moveCursorToEnd();
@@ -469,7 +468,23 @@ class ToastUIEditorCore {
    * @param {string} markdown - markdown syntax text.
    * @param {boolean} [cursorToEnd=true] - move cursor to contents end
    */
-  async setMarkdown(
+  setMarkdown(markdown = '', cursorToEnd = true) {
+    this.mdEditor.setMarkdown(markdown, cursorToEnd);
+
+    if (this.isWysiwygMode()) {
+      const mdNode = this.toastMark.getRootNode();
+      const wwNode = this.convertor.toWysiwygModel(mdNode);
+
+      this.wwEditor.setModel(wwNode!, cursorToEnd);
+    }
+  }
+
+  /**
+   * Set markdown syntax text.
+   * @param {string} markdown - markdown syntax text.
+   * @param {boolean} [cursorToEnd=true] - move cursor to contents end
+   */
+  async setMarkdownByParts(
     markdown = '',
     cursorToEnd = true,
     { renderByPart = true, renderByPartLineMinStep = 2000 } = {}
