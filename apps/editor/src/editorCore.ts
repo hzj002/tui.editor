@@ -480,14 +480,16 @@ class ToastUIEditorCore {
   }
 
   /**
-   * Set markdown syntax text.
+   * 设置markdown字符，会跟据minStep分块渲染到页面中，以减轻页面阻塞。用于大文件渲染
    * @param {string} markdown - markdown syntax text.
    * @param {boolean} [cursorToEnd=true] - move cursor to contents end
+   * @param {object} [options] - options
+   * @param {number} [options.renderByPartLineMinStep=2000] - 分块渲染时，每块的最小行数
    */
   async setMarkdownByParts(
     markdown = '',
     cursorToEnd = true,
-    { renderByPart = true, renderByPartLineMinStep = 2000 } = {}
+    { renderByPartLineMinStep = 2000 } = {}
   ) {
     /**
      * 将markdown文档分块，按照minStep行数分块，为了不切割markdown文档中的块级元素，如表格、代码块等。会在minStep之后的下一个标题处分块。
@@ -497,7 +499,7 @@ class ToastUIEditorCore {
     const splitLinesByMinStep = (markdownStr: string, minStep: number) => {
       const lines = markdownStr.split(reLineEnding);
 
-      const isHeading = (line: string) => /^[#=-]+\s/.test(line);
+      const isHeading = (line: string) => /^[#=-]+\s/gm.test(line);
 
       // 将数组每[minStep]个元素组合成一个数组
       const parts = [];
@@ -539,9 +541,7 @@ class ToastUIEditorCore {
       return parts.map((part) => part.join('\n'));
     };
 
-    const parts = renderByPart
-      ? splitLinesByMinStep(markdown, renderByPartLineMinStep)
-      : [markdown];
+    const parts = splitLinesByMinStep(markdown, renderByPartLineMinStep);
 
     /**
      * 添加分块到编辑器中
@@ -575,9 +575,9 @@ class ToastUIEditorCore {
     );
 
     console.group('markdown convertion time');
-    console.time('convert markdown to editor nodes');
+    console.time('convert markdown to wwNode');
     await taskQueue;
-    console.timeEnd('convert markdown to editor nodes');
+    console.timeEnd('convert markdown to wwNode');
     console.groupEnd();
   }
 
