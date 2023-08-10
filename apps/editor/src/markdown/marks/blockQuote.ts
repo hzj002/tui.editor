@@ -1,7 +1,7 @@
 import { DOMOutputSpec } from 'prosemirror-model';
 import { Command } from 'prosemirror-commands';
 import { EditorCommand } from '@t/spec';
-import { clsWithMdPrefix } from '@/utils/dom';
+// import { clsWithMdPrefix } from '@/utils/dom';
 import Mark from '@/spec/mark';
 import {
   createTextNode,
@@ -22,7 +22,9 @@ export class BlockQuote extends Mark {
   get schema() {
     return {
       toDOM(): DOMOutputSpec {
-        return ['span', { class: clsWithMdPrefix('block-quote') }, 0];
+        // 取消 blockQuote 的样式
+        // return ['span', { class: clsWithMdPrefix('block-quote') }, 0];
+        return ['span', 0];
       },
     };
   }
