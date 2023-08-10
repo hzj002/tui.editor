@@ -38,7 +38,7 @@ export class Switch extends Component<Props, State> {
         <div
           class="tab-item${editorType === 'markdown' ? ' active' : ''}"
           onClick=${() => {
-            eventEmitter.emit('needChangeMode', 'markdown');
+            eventEmitter.emit('askChangeMode', 'markdown');
           }}
         >
           ${i18n.get('Markdown')}
@@ -46,7 +46,7 @@ export class Switch extends Component<Props, State> {
         <div
           class="tab-item${editorType === 'wysiwyg' ? ' active' : ''}"
           onClick=${() => {
-            eventEmitter.emit('needChangeMode', 'wysiwyg');
+            eventEmitter.emit('askChangeMode', 'wysiwyg');
           }}
         >
           ${i18n.get('WYSIWYG')}
