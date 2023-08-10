@@ -234,6 +234,7 @@ const toWwConvertors: ToWwConvertorMap = {
 
   tableCell(state, node, { entering }) {
     if (!(node as TableCellMdNode).ignored) {
+      /** isInlineNode 或者inlinehtml元素 */
       const hasParaNode = (childNode: MdNode | null) =>
         childNode && (isInlineNode(childNode) || isCustomHTMLInlineNode(state, childNode));
 
@@ -345,10 +346,11 @@ const toWwConvertors: ToWwConvertorMap = {
       const nodeType = state.schema.nodes[typeName];
 
       if (typeName === 'table') {
-        //如果表格中代码中没有thead，将第一行tr作为thead并插入thead元素。防止toWwConvertor 中tableHead匹配不到thead导致渲染时被注入markdown的表头字符，导致无法正常渲染表格
+        // 如果表格中代码中没有thead，将第一行tr作为thead并插入thead元素。防止toWwConvertor 中tableHead匹配不到thead导致渲染时被注入markdown的表头字符，导致无法正常渲染表格
         if (!/<thead[\s\S]*?>/g.test(html)) {
-          const thead = html.match(/<tr>([\s\S]*?)<\/tr>/)![0]
-          html = html.replace(thead, `<thead>${thead}</thead>`)
+          const [thead] = html.match(/<tr>([\s\S]*?)<\/tr>/)!;
+
+          html = html.replace(thead, `<thead>${thead}</thead>`);
         }
       }
 
