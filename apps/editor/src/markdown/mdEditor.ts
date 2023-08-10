@@ -14,7 +14,7 @@ import SpecManager from '@/spec/specManager';
 import { cls, toggleClass } from '@/utils/dom';
 import { emitImageBlobHook, pasteImageOnly } from '@/helper/image';
 import { createParagraph, createTextSelection } from '@/helper/manipulation';
-import { syntaxHighlight } from './plugins/syntaxHighlight';
+// import { syntaxHighlight } from './plugins/syntaxHighlight';
 import { previewHighlight } from './plugins/previewHighlight';
 import { Doc } from './nodes/doc';
 import { Paragraph } from './nodes/paragraph';
@@ -167,7 +167,8 @@ export default class MdEditor extends EditorBase {
 
   createPlugins() {
     return [
-      syntaxHighlight(this.context),
+      // markdown编辑时，给编辑中的文本添加样式的插件，文件很大的时候，会有内存溢出的问题
+      // syntaxHighlight(this.context),
       previewHighlight(this.context),
       smartTask(this.context),
       ...this.createPluginProps(),
