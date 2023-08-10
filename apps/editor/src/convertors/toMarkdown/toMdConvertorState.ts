@@ -45,8 +45,15 @@ export default class ToMdConvertorState {
     return this.markTypeConvertors[type];
   }
 
+  /** 上一次添加到result 的内容 */
+  private lastAddedText = '';
+
   private isInBlank() {
-    return /(^|\n)$/.test(this.result);
+    if (this.result === '') return true;
+    // 看正则匹配的是”是否为空内容“或者”结尾是否是空行“
+    // 这里之前每次都用this.result 来匹配，并且这个函数调用比较频繁，在大文档下会比较严重的性能问题
+    // 优化性能，只匹配最后一次添加的内容
+    return /(^|\n)$/.test(this.lastAddedText);
   }
 
   private markText(mark: Mark, entering: boolean, parent: Node, index: number) {
@@ -61,6 +68,11 @@ export default class ToMdConvertorState {
     return '';
   }
 
+  addToResult(text: string) {
+    this.lastAddedText = text;
+    this.result += text;
+  }
+
   setDelim(delim: string) {
     this.delim = delim;
   }
@@ -72,7 +84,7 @@ export default class ToMdConvertorState {
   flushClose(size?: number) {
     if (!this.stopNewline && this.closed) {
       if (!this.isInBlank()) {
-        this.result += '\n';
+        this.addToResult('\n');
       }
 
       if (!size) {
@@ -88,7 +100,7 @@ export default class ToMdConvertorState {
         }
 
         for (let i = 1; i < size; i += 1) {
-          this.result += `${delimMin}\n`;
+          this.addToResult(`${delimMin}\n`);
         }
       }
 
@@ -108,7 +120,7 @@ export default class ToMdConvertorState {
 
   ensureNewLine() {
     if (!this.isInBlank()) {
-      this.result += '\n';
+      this.addToResult('\n');
     }
   }
 
@@ -116,11 +128,11 @@ export default class ToMdConvertorState {
     this.flushClose();
 
     if (this.delim && this.isInBlank()) {
-      this.result += this.delim;
+      this.addToResult(this.delim);
     }
 
     if (content) {
-      this.result += content;
+      this.addToResult(content);
     }
   }
 
@@ -133,10 +145,10 @@ export default class ToMdConvertorState {
 
     for (let i = 0; i < lines.length; i += 1) {
       this.write();
-      this.result += escaped ? escape(lines[i]) : lines[i];
+      this.addToResult(escaped ? escape(lines[i]) : lines[i]);
 
       if (i !== lines.length - 1) {
-        this.result += '\n';
+        this.addToResult('\n');
       }
     }
   }
@@ -218,7 +230,6 @@ export default class ToMdConvertorState {
           }
 
           if (mark.eq(other)) {
-            // eslint-disable-next-line max-depth
             if (i > j) {
               marks = marks
                 .slice(0, j)
