@@ -57,7 +57,7 @@ export default class MdEditor extends EditorBase {
 
   private clipboard!: HTMLTextAreaElement;
 
-  context!: MdContext;
+  declare context: MdContext;
 
   constructor(eventEmitter: Emitter, options: MarkdownOptions) {
     super(eventEmitter);
@@ -233,7 +233,7 @@ export default class MdEditor extends EditorBase {
     }
 
     if (type === EVENT_TYPE) {
-      this.view.dispatch(tr.deleteSelection().scrollIntoView().setMeta('uiEvent', EVENT_TYPE));
+      this.view.dispatch(tr.deleteSelection().setMeta('uiEvent', EVENT_TYPE));
     }
     return true;
   }
@@ -254,7 +254,7 @@ export default class MdEditor extends EditorBase {
 
           this.eventEmitter.emit('updatePreview', editResult);
 
-          tr.setMeta('editResult', editResult).scrollIntoView();
+          tr.setMeta('editResult', editResult);
         }
       });
     }
@@ -280,7 +280,7 @@ export default class MdEditor extends EditorBase {
     const { tr } = this.view.state;
     const [from, to] = getMdToEditorPos(tr.doc, start, end);
 
-    this.view.dispatch(tr.setSelection(createTextSelection(tr, from, to)).scrollIntoView());
+    this.view.dispatch(tr.setSelection(createTextSelection(tr, from, to)));
   }
 
   replaceSelection(text: string, start?: MdPos, end?: MdPos) {
@@ -301,7 +301,7 @@ export default class MdEditor extends EditorBase {
     } else {
       newTr = tr.replaceSelection(slice);
     }
-    this.view.dispatch(newTr.scrollIntoView());
+    this.view.dispatch(newTr);
   }
 
   deleteSelection(start?: MdPos, end?: MdPos) {
@@ -315,7 +315,7 @@ export default class MdEditor extends EditorBase {
     } else {
       newTr = tr.deleteSelection();
     }
-    this.view.dispatch(newTr.scrollIntoView());
+    this.view.dispatch(newTr);
   }
 
   getSelectedText(start?: MdPos, end?: MdPos) {
