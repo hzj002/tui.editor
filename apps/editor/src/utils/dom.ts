@@ -268,11 +268,14 @@ export function replaceBRWithEmptyBlock(html: string) {
 export function removeProseMirrorHackNodes(html: string) {
   const reProseMirrorImage = /<img class="ProseMirror-separator" alt="">/g;
   const reProseMirrorTrailingBreak = / class="ProseMirror-trailingBreak"/g;
+  const reProseMirrorfocused = /\s*ProseMirror-focused/g;
 
   let resultHTML = html;
 
   resultHTML = resultHTML.replace(reProseMirrorImage, '');
   resultHTML = resultHTML.replace(reProseMirrorTrailingBreak, '');
+  // editor.getHTML时，如果保留这个ProseMirror-focused class，会导致内容未曾编辑时，getHTML返回的html中内容可能不一致
+  resultHTML = resultHTML.replace(reProseMirrorfocused, '');
 
   return resultHTML;
 }
