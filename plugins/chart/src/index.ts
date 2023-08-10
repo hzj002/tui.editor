@@ -362,6 +362,11 @@ export default function chartPlugin(
 
         timer = setTimeout(() => {
           renderChart(id, node.literal!, usageStatistics, options);
+          const container = document.querySelector<HTMLElement>(`[data-chart-id=${id}]`);
+
+          if (container) {
+            node.chartId = `[data-chart-id=${id}]`;
+          }
         });
         return [
           {

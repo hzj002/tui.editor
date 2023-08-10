@@ -143,6 +143,7 @@ export interface CustomBlockMdNode extends BlockMdNode {
   syntaxLength: number;
   offset: number;
   info: string;
+  chartId: String | null;
 }
 
 export interface HtmlBlockMdNode extends BlockMdNode {

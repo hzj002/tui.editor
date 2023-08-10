@@ -63,14 +63,20 @@ export function removeAllNode() {
 
 export class Node implements MdNode {
   type: MdNodeType;
+
   id: number;
+
   parent: Node | null = null;
+
   prev: Node | null = null;
+
   next: Node | null = null;
+
   sourcepos?: Sourcepos;
 
   // only for container node
   firstChild: Node | null = null;
+
   lastChild: Node | null = null;
 
   // only for leaf node
@@ -179,9 +185,13 @@ export class BlockNode extends Node implements BlockMdNode {
 
   // temporal data (for parsing)
   open = true;
+
   lineOffsets: number[] | null = null;
+
   stringContent: string | null = null;
+
   lastLineBlank = false;
+
   lastLineChecked = false;
 
   constructor(nodeType: BlockNodeType, sourcepos?: Sourcepos) {
@@ -196,15 +206,21 @@ export class ListNode extends BlockNode implements ListMdNode {
 
 export class HeadingNode extends BlockNode implements HeadingMdNode {
   level = 0;
+
   headingType: 'atx' | 'setext' = 'atx';
 }
 
 export class CodeBlockNode extends BlockNode implements CodeBlockMdNode {
   isFenced = false;
+
   fenceChar: string | null = null;
+
   fenceLength = 0;
+
   fenceOffset = -1;
+
   info: string | null = null;
+
   infoPadding = 0;
 }
 
@@ -214,22 +230,32 @@ export class TableNode extends BlockNode implements TableMdNode {
 
 export class TableCellNode extends BlockNode implements TableCellMdNode {
   startIdx = 0;
+
   endIdx = 0;
+
   paddingLeft = 0;
+
   paddingRight = 0;
+
   ignored = false;
 }
 
 export class RefDefNode extends BlockNode implements RefDefMdNode {
   title = '';
+
   dest = '';
+
   label = '';
 }
 
 export class CustomBlockNode extends BlockNode implements CustomBlockMdNode {
   syntaxLength = 0;
+
   offset = -1;
+
   info = '';
+
+  chartId = null;
 }
 
 export class HtmlBlockNode extends BlockNode implements HtmlBlockMdNode {
@@ -238,8 +264,11 @@ export class HtmlBlockNode extends BlockNode implements HtmlBlockMdNode {
 
 export class LinkNode extends Node implements LinkMdNode {
   destination: string | null = null;
+
   title: string | null = null;
+
   extendedAutolink = false;
+
   lastChild!: Node;
 }
 

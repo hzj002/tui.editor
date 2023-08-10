@@ -285,9 +285,9 @@ const toWwConvertors: ToWwConvertorMap = {
 
   customBlock(state, node) {
     const { customBlock, paragraph } = state.schema.nodes;
-    const { info, literal } = node as CustomBlockMdNode;
+    const { info, literal } = node as unknown as CustomBlockMdNode;
 
-    state.openNode(customBlock, { info });
+    state.openNode(customBlock, { info, chatId: node.chartId });
     state.addText(getTextWithoutTrailingNewline(literal || ''));
     state.closeNode();
     // add empty line to edit the content in next line

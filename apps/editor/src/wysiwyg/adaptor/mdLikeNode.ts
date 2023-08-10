@@ -51,7 +51,7 @@ export function createMdLikeNode(node: ProsemirrorNode | Mark): MdLikeNode {
     listItem: { type: 'item', listData: { task: attrs.task, checked: attrs.checked } },
     tableHeadCell: { type: 'tableCell', cellType: 'head', align: attrs.align },
     tableBodyCell: { type: 'tableCell', cellType: 'body', align: attrs.align },
-    customBlock: { info: attrs.info },
+    customBlock: { info: attrs.info, chartId: attrs.chartId },
   } as const;
   const nodeInfo = nodeTypeMap[nodeType as keyof typeof nodeTypeMap];
   const attributes = { ...mdLikeNode, ...nodeInfo };

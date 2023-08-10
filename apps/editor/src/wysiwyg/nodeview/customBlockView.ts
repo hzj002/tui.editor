@@ -78,7 +78,17 @@ export class CustomBlockView implements NodeView {
       }
 
       if (node) {
-        this.wrapper.appendChild(node);
+        if (this.node.attrs.chartId) {
+          const img = document.createElement('img');
+          const container = document.querySelector<HTMLElement>(this.node.attrs.chartId);
+
+          if (container) {
+            img.src = container.getElementsByTagName('canvas')[0].toDataURL();
+          }
+          this.wrapper.appendChild(img);
+        } else {
+          this.wrapper.appendChild(node);
+        }
       }
       this.renderToolArea();
     }
