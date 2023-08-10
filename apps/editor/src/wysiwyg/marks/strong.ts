@@ -6,7 +6,7 @@ import { getCustomAttrs, getDefaultCustomAttrs } from '@/wysiwyg/helper/node';
 
 import { EditorCommand } from '@t/spec';
 
-export const strongMarkTags = ['b', 'strong']
+export const strongMarkTags = ['b', 'strong'];
 
 export class Strong extends Mark {
   get name() {

@@ -6,7 +6,7 @@ import { getCustomAttrs, getDefaultCustomAttrs } from '@/wysiwyg/helper/node';
 
 import { EditorCommand } from '@t/spec';
 
-export const emphMarkTags = ['i', 'em']
+export const emphMarkTags = ['i', 'em'];
 export class Emph extends Mark {
   get name() {
     return 'emph';
